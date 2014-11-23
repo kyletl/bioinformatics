@@ -11,7 +11,7 @@ VOCAB = set("ARNDCQEGHILKMFPSTWYV")
 def formatHelper(helper):
 
 	for v in VOCAB:
-		sys.stdout.write('    '+v+'    ')
+		sys.stdout.write('   '+v+'   ')
 	print '\n   m->m    m->i    m->d    i->m    i->i    d->m    d->d'
 
 	for i in range(len(helper.a)-1):
@@ -46,8 +46,8 @@ if __name__ == '__main__':
 	elif command == "train":
 		helper = AlignedProfileHMMInit(seqs)
 		phmm = ProfileHMM(helper)
-		# print phmm.a
 		for a in phmm.a:
 			print a
 		for b in phmm.b:
 			print b
+		formatHelper(helper)

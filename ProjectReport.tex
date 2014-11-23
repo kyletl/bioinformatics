@@ -49,7 +49,7 @@ Profile-Hidden Markov Models are an adaptation of HMMs used to model genetic seq
 \includegraphics[width=.8\textwidth]{materials/profile-HMM.png}
 \caption{profile-HMM\footnotemark[1]}
 \end{figure}
-Each position in the sequence is represented by one match state, one insert state, and one delete state. Aside from the insert states, a state may only transition to another state that is in the next sequential step in the sequence. Thus each position in the sequence (1 \ldots k) can be represented as M_{1} I_{1} D_{1}, M_{2} I_{2} D_{2} \ldots M_{k} I_{k} D_{k}. The probabilities of each state transitioning to each other valid state describes the set of transition probabilities for the model. Each match state contains a probability distribution for the alphabet of amino acids, describing the set of emission probabilities for that state.
+Each position in the sequence is represented by one match state, one insert state, and one delete state. Aside from the insert states, a state may only transition to another state that is in the next sequential step in the sequence. Thus each position in the sequence (1 \ldots k) can be represented as $M_{1} I_{1} D_{1}, M_{2} I_{2} D_{2} \ldots M_{k} I_{k} D_{k}$. The probabilities of each state transitioning to each other valid state describes the set of transition probabilities for the model. Each match state contains a probability distribution for the alphabet of amino acids, describing the set of emission probabilities for that state.
 
 \section{Methods}
 
@@ -61,7 +61,7 @@ The profile-HMM is first initialized with a start and end node (which do not cor
 
 
 \section{Application}
-To test our profile-HMM, we used two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we trained two separate models (one for each family). We then compared our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for it's own family.
+To test our profile-HMM, we used two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we trained two separate models (one for each family). We then compared our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for its own family.
 
 In order to compare against more established methods, we built HMMs on the same seed multiple sequence alignments using HMMer, then ran a search on pfam's database using those HMMs. 
 
@@ -69,7 +69,9 @@ In order to compare against more established methods, we built HMMs on the same 
 \footnotetext[4]{http://pfam.xfam.org/family/PF15187}
 
 \section{Results}
+didn't work because of underflow - rounding floating point errors caused it to be reduced to 0
 
+if we had more time, use a log likelihood transform 
 
 \section{Discussion}
 
