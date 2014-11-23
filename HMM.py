@@ -18,7 +18,7 @@ D = 'D'
 I = 'I'
 M = 'M'
 N = 'N'
-PSEUDOCOUNT = 1
+PSEUDOCOUNT = 100
 BEGINNING = {
 	I: {
 		I: PSEUDOCOUNT,
@@ -75,107 +75,107 @@ Input:
 	start (optional) - start state, must be in states
 """
 
-class ProfileHMM:
+# class ProfileHMM:
 
-	def __init__(self, length, vocab):
-		self.length = length
-		self.vocab = vocab
+# 	def __init__(self, length, vocab):
+# 		self.length = length
+# 		self.vocab = vocab
 
-		self.vocab_size = len(vocab)
+# 		self.vocab_size = len(vocab)
 
-		# states = set('DIM')
-		# self.states = [set('I')]
-		# self.states.extend([set('DIM')] * length) ## assume states is stored as states[column][set(states)]
-		# self.transitions = transitions
-		# self.num_states = len(states)
+# 		# states = set('DIM')
+# 		# self.states = [set('I')]
+# 		# self.states.extend([set('DIM')] * length) ## assume states is stored as states[column][set(states)]
+# 		# self.transitions = transitions
+# 		# self.num_states = len(states)
 
-		# # pi[i] = chances of starting with state i
-		# self.pi = {state: 1.0 / self.num_states for state in self.states}
+# 		# # pi[i] = chances of starting with state i
+# 		# self.pi = {state: 1.0 / self.num_states for state in self.states}
 
-		# # a[i][j] = "time-independent stochastic transition matrix"
-		# # i.e. chance of transition from state i to state j
-		# self.a = {
-		# 	in_state: {
-		# 		out_state: 1.0 / len(self.transitions[in_state]) 
-		# 		for out_state in self.transitions[in_state]
-		# 	} for in_state in self.transitions
-		# }
+# 		# # a[i][j] = "time-independent stochastic transition matrix"
+# 		# # i.e. chance of transition from state i to state j
+# 		# self.a = {
+# 		# 	in_state: {
+# 		# 		out_state: 1.0 / len(self.transitions[in_state]) 
+# 		# 		for out_state in self.transitions[in_state]
+# 		# 	} for in_state in self.transitions
+# 		# }
 
-		# # b[i][j] = chances of emission j in state i
-		# if emits is not None:
-		# 	self.b = {
-		# 		emit_state: {
-		# 			emit: 1.0 / self.vocab_size for emit in self.vocab
-		# 		} for emit_state in emits
-		# 	}
-		# else:
-		# 	self.b = {
-		# 		state: {
-		# 			emit: 1.0 / self.vocab_size for emit in self.vocab
-		# 		} for state in self.states
-		# 	}
+# 		# # b[i][j] = chances of emission j in state i
+# 		# if emits is not None:
+# 		# 	self.b = {
+# 		# 		emit_state: {
+# 		# 			emit: 1.0 / self.vocab_size for emit in self.vocab
+# 		# 		} for emit_state in emits
+# 		# 	}
+# 		# else:
+# 		# 	self.b = {
+# 		# 		state: {
+# 		# 			emit: 1.0 / self.vocab_size for emit in self.vocab
+# 		# 		} for state in self.states
+# 		# 	}
 
-	def converge(self):
-		pass
+# 	def converge(self):
+# 		pass
 
-	"""Function to scan forward through a sequence and find probabilities."""
-	def scan_forward(self, sequence):
-		width = len(sequence)
-		result = {state: [0] * width for state in self.states}
+# 	"""Function to scan forward through a sequence and find probabilities."""
+# 	def scan_forward(self, sequence):
+# 		width = len(sequence)
+# 		result = {state: [0] * width for state in self.states}
 
-		# init time 0
-		for state in self.states:
-			if state in self.emits:
-				result[state][0] = self.pi[state] * self.b[state][sequence[0]]
-			else:
-				result[state][0] = self.pi[state]
+# 		# init time 0
+# 		for state in self.states:
+# 			if state in self.emits:
+# 				result[state][0] = self.pi[state] * self.b[state][sequence[0]]
+# 			else:
+# 				result[state][0] = self.pi[state]
 
-		# induction from base case
-		for t in range(1, width):
-			# calculate prob of each destination state
-			for dest in self.states:
-				# for every source state in previous time
-				for source in self.states:
-					# add prob of transitioning into dest state
-					result[dest][t] += result[source][t-1] * self.a[source][dest]
-				# scale by emission probability if needed
-				if dest in self.emits:
-					result[dest][t] *= self.b[dest][sequence[t]]
+# 		# induction from base case
+# 		for t in range(1, width):
+# 			# calculate prob of each destination state
+# 			for dest in self.states:
+# 				# for every source state in previous time
+# 				for source in self.states:
+# 					# add prob of transitioning into dest state
+# 					result[dest][t] += result[source][t-1] * self.a[source][dest]
+# 				# scale by emission probability if needed
+# 				if dest in self.emits:
+# 					result[dest][t] *= self.b[dest][sequence[t]]
 
-		# result holds prob of each state/time given prefix
-		return result
+# 		# result holds prob of each state/time given prefix
+# 		return result
 
-	"""Function to scan backward through a sequence and find probabilities."""
-	def scan_backward(self, sequence):
-		width = len(sequence)
-		result = {state: [0] * width for state in self.states}
+# 	"""Function to scan backward through a sequence and find probabilities."""
+# 	def scan_backward(self, sequence):
+# 		width = len(sequence)
+# 		result = {state: [0] * width for state in self.states}
 
-		# init final time
-		for state in self.states[-1]:
-			result[state][width-1] = 1
+# 		# init final time
+# 		for state in self.states[-1]:
+# 			result[state][width-1] = 1
 
-		result[I][width-1] = 1
+# 		result[I][width-1] = 1
 
-		# induction from base case
-		# for t in range(width-2, -1, -1):
-			# check delete state
+# 		# induction from base case
+# 		# for t in range(width-2, -1, -1):
+# 			# check delete state
 
-			# check match state
+# 			# check match state
 
-			# check insert state
+# 			# check insert state
 
-			# calculate prob of each source state
-			# for source in self.states:
-			# 	# for every destination state
-			# 	for dest in self.states:
-			# 		# add prob of transitioning from source state
-			# 		prob = result[dest][t+1] * self.a[source][dest]
-			# 		if dest in self.emits:
-			# 			prob *= self.b[dest][sequence[t+1]]
-			# 		result[source][t] += prob
+# 			# calculate prob of each source state
+# 			# for source in self.states:
+# 			# 	# for every destination state
+# 			# 	for dest in self.states:
+# 			# 		# add prob of transitioning from source state
+# 			# 		prob = result[dest][t+1] * self.a[source][dest]
+# 			# 		if dest in self.emits:
+# 			# 			prob *= self.b[dest][sequence[t+1]]
+# 			# 		result[source][t] += prob
 
-		# result holds prob of each state/time given suffix
-		return result
+# 		# result holds prob of each state/time given suffix
+# 		return result
 
 class ProfileHMMHelper:
 
@@ -214,7 +214,7 @@ class ProfileHMMHelper:
 
 		### EMISSION MATRIX ###
 
-		# b[t][i][j] = chances of emission j in state i at node t
+		# b[t][i][e] = chances of emission e in state i at node t
 		b = [{I: dict(empty_count)}]
 
 		# iterate through sequence to construct emission matrix using counts
@@ -232,12 +232,14 @@ class ProfileHMMHelper:
 				ProfileHMMHelper._add_count(b[node][M], col_count[col])
 				col += 1
 
+		model_width = len(b)
+
 		### TRANSITION MATRIX ###
 
 		# a[t][i][j] 
 		# i.e. chance of transition from state i at node t to state j
 		a = [BEGINNING]
-		a.extend([TRANSITIONS] * (len(b) - 2))
+		a.extend([TRANSITIONS] * (model_width - 2))
 		a.append(END)
 
 		# iterate through sequence to construct transition matrix
@@ -265,12 +267,20 @@ class ProfileHMMHelper:
 				col += 1
 
 		### NORMALIZATION ###
+		assert len(a) == len(b)
 
-		# normI = sum(b[t][I].values())
-		# normM = sum(b[t][M].values())
-		# for emit in vocab:
-		# 	b[t][I][emit] = b[t][I][emit] / normI
-		# 	b[t][M][emit] = b[t][M][emit] / normM
+		for node in range(model_width):
+			# normalize transition matrix
+			for source in a[node]:
+				norm = float(sum(a[node][source].values()))
+				for dest in a[node][source]:
+					a[node][source][dest] = a[node][source][dest] / norm
+
+			# normalize emission matrix
+			for state in b[node]:
+				norm = float(sum(b[node][state].values()))
+				for emit in b[node][state]:
+					b[node][state][emit] = b[node][state][emit] / norm
 
 		# hmm = ProfileHMM(width, vocab)
 
