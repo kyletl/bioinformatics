@@ -62,7 +62,7 @@ The profile-HMM is first initialized with a start and end node (which do not cor
 
 
 \section{Application}
-We had planned to test our profile-HMM using two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we planned to train two separate models (one for each family). We would then compare our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for its own family.
+We trained our profile-HMM using using two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1, PF15066)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin, PF15187).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we planned to train two separate models (one for each family). We would then compare our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for its own family.
 
 In order to compare against more established methods, we planned to build HMMs on the same seed multiple sequence alignments using HMMer, then run a search on pfam's database using those HMMs and compare to our own results.
 
@@ -81,7 +81,7 @@ Ideally we would have also been able to generate HMM logos based on our results.
 
 \section{Results}
 
-While we weren't able to accomplish all of our goals, we were able to implement a training algorithm for profile-HMMs based on MSAs and also the forward-backward evaluation part of Baum-Welch. Attached is our output for the profile-HMM generated from the PF15187\_seed.txt MSA (in data/gen\_PF15187.hmm), which is too large to include in this report. PF15187.hmm is the pfam generated HMM for the same data set. It was difficult to interpret pfam's results without more information on the formatting of the data, and we feel that the differences in output are due to the varied structuring of the programs. We believe the maximization step failed because of an underflow error. The probabilities produced by the Forward-Backward algorithm approached zero due to the accumulation of rounding floating point errors. In the future, we would use a log-likelihood transformation to avoid this problem.
+While we weren't able to accomplish all of our goals, we were able to implement a training algorithm for profile-HMMs based on MSAs and also the forward-backward evaluation part of Baum-Welch. Attached is our output for the profile-HMM generated from the PF15187\_seed.txt MSA (in data/gen\_PF15187.hmm), which is too large to include in this report. PF15187.hmm is the pfam generated HMM for the same data set. It was difficult to interpret pfam's results without more information on the formatting of the data, and we feel that the differences in output are due to the varied structuring of the programs. We believe the maximization step failed because of an underflow error; the probabilities produced by the Forward-Backward algorithm approached zero due to the accumulation of rounding floating point errors. In the future, we would use a log-likelihood transformation to avoid this problem.
 
 
 \section{Division of Labor}
