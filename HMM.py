@@ -170,14 +170,14 @@ class ProfileHMM:
 		alpha[0][(0, B)] = 1
 		alpha[0][(0, I)] = 0
 		for state in BODY_STATES:
-			for k in range(1, self.length + 1)
+			for k in range(1, self.length + 1):
 				alpha[0][(k, state)] = 0
 		alpha[0][(self.length + 1, N)] = 0
 
 		# record all possible states, represented as tuples (node_number, state_type)
 		all_states = set(alpha[0].values())
 
-		for t in range(1, len(sequence)+1)
+		# for t in range(1, len(sequence)+1):
 
 # 		self.vocab_size = len(vocab)
 
