@@ -32,6 +32,7 @@ def formatHelper(helper):
 			sys.stdout.write(' '+str(round(helper.a[i]['D']['M'], 4)))
 			sys.stdout.write(' '+str(round(helper.a[i]['D']['D'], 4)))
 			print '\n'
+
 # possible commands: init, train
 if __name__ == '__main__':
 	fname = argv[2]
@@ -40,14 +41,19 @@ if __name__ == '__main__':
 
 	if command == "init":
 		helper = AlignedProfileHMMInit(seqs)
+		# print helper.a
+		# print helper.b
+		for h in helper.b:
+			print h
+
+		print "\n"
+		print "\n"
+
 		for h in helper.a:
 			print h
 
-	elif command == "train":
+	elif command == "test":
 		helper = AlignedProfileHMMInit(seqs)
 		phmm = ProfileHMM(helper)
-		for a in phmm.a:
-			print a
-		for b in phmm.b:
-			print b
+		print phmm.probability(seqs[0])
 		formatHelper(helper)

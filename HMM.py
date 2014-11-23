@@ -8,6 +8,7 @@ Implementation of Hidden Markov Model.
 """
  
 # imports
+import math
 import numpy as np
 import sys
 import copy
@@ -19,7 +20,7 @@ D = 'D'
 I = 'I'
 M = 'M'
 N = 'N'
-PSEUDOCOUNT = 1
+PSEUDOCOUNT = 10
 INS_DEL_SCALE = 0.2
 BEGINNING = {
 	I: {
@@ -82,7 +83,8 @@ Input:
 class ProfileHMM:
 
 	def __init__(self, hmm):
-		# self.length = length
+		assert len(hmm.a) == len(hmm.b)
+		self.length = len(hmm.a) - 1
 		self.vocab = VOCAB
 
 		# a[t][i][j] 
@@ -92,12 +94,19 @@ class ProfileHMM:
 		# b[t][i][e] = chances of emission e in state i at node t
 		self.b = copy.deepcopy(hmm.b)
 
-	def probability(self, sequence):
-		alpha = self.check_forward(sequence)
+	def probability(self, seq):
+		sequence = self.clean_sequence(seq)
+		# alpha = self.check_forward(sequence)
 		beta = self.check_backward(sequence)
+		# print alpha[len(sequence)][(self.length + 1, N)] 
+		# print beta[0][(0, B)]
+		return beta[0][(0, B)]
+
+	def train_once(self, sequence):
+		pass
 
 	def check_forward(self, sequence):
-		alpha = [{}] # alpha[t][state_tuple] = prob of being in particular state at time t
+		alpha = [{} for t in range(len(sequence) + 1)] # alpha[t][state_tuple] = prob of being in particular state at time t
 
 		# init data structure/base case
 		alpha[0][(0, B)] = 1
@@ -108,16 +117,16 @@ class ProfileHMM:
 		alpha[0][(self.length + 1, N)] = 0
 
 		# record all possible states, represented as tuples (node_number, state_type)
-		all_states = set(alpha[0].values())
+		all_states = self.get_all_states()
+		all_states.reverse()
 
 		# for increasing time values, find probability of particular state
 		for t in range(1, len(sequence)+1):
-			alpha.append({})
 			for (d, dest_state) in all_states:
 				# get raw probability based on source states
 				prob = 0
-				for s, src_state in self.source_states(d, dest_state):
-					prob += self.a[s][state][dest_state] * alpha[t-1][(s, src_state)]
+				for (s, src_state) in self.source_states(d, dest_state):
+					prob += self.a[s][src_state][dest_state] * alpha[t-1][(s, src_state)]
 				# scale probability by emission probability if needed
 				if dest_state in EMITS:
 					prob *= self.b[d][dest_state][sequence[t-1]] # adjust for sequence 0-index
@@ -134,9 +143,12 @@ class ProfileHMM:
 		for t, state in all_states:
 			beta[len(sequence)][(t, state)] = 0
 		beta[len(sequence)][(self.length+1, N)] = 1
+		beta[len(sequence)][(self.length, I)] = self.a[self.length][I][N]
+		beta[len(sequence)][(self.length, M)] = self.a[self.length][M][N]
+		beta[len(sequence)][(self.length, D)] = self.a[self.length][D][N]
 
 		# for decreasing time values, find probability of state given suffix
-		for t in range(len(sequence), -1, -1):
+		for t in range(len(sequence)-1, -1, -1):
 			for (s, src_state) in all_states:
 				prob = 0
 				# take a sigma over all destination states from this one
@@ -170,12 +182,13 @@ class ProfileHMM:
 				else:
 					return sources
 
-			elif pos > self.length + 1:
+			elif pos == 1 and state is not I:
+				sources.add((0, B))
+				sources.add((0, I))
 				return sources
 
-
-			elif pos < 0:
-				return sources
+			elif pos > self.length + 1 or pos < 0:
+				return source
 			
 			elif state is not I:
 				src_pos = pos - 1
@@ -189,7 +202,7 @@ class ProfileHMM:
 			sources.add(d_src)
 			sources.add(m_src)
 			sources.add(i_src)
-			
+
 			return sources
 
 		return sources
@@ -197,19 +210,22 @@ class ProfileHMM:
 	def dest_states(self, pos, state):
 		"""Inverse of source_states function."""
 		assert state in STATES
-		assert pos <= self.length
+		assert pos <= self.length or (pos == self.length + 1 and state is N)
 		sources = set()
 
 		if (state is not B or pos == 0) and state is not N:
 			if pos == self.length:
-					end = (self.length + 1, N)
-					sources.add(end)
-					return sources
-
-			elif pos > self.length:
+				sources.add((self.length, I))					
+				sources.add((self.length + 1, N))
 				return sources
 
-			elif pos < 0:
+			if pos == 0:
+				sources.add((0, I))
+				sources.add((1, M))
+				sources.add((1, D))
+				return sources
+
+			elif pos > self.length or pos < 0:
 				return sources
 
 			dest_pos = pos + 1
@@ -225,14 +241,25 @@ class ProfileHMM:
 		return sources
 
 	def get_all_states(self):
-		ret = set()
-		ret.add((0, B))
-		ret.add((0, I))
-		for state in BODY_STATES:
-			for k in range(1, self.length + 1):
-				ret.add(k, state)
-		ret.add(self.length + 1, N)
+		"""Return list of states in reverse topological order."""
+		ret = []
+		ret.append((0, B))
+		ret.append((0, I))
+		for k in range(1, self.length + 1):
+			ret.append((k, M))
+			ret.append((k, D))
+			ret.append((k, I))
+		ret.append((self.length + 1, N))
+		ret.reverse()
 		return ret
+
+	def clean_sequence(self, sequence):
+		# return sequence
+		new = ""
+		for char in sequence:
+			if char is not '-':
+				new += char
+		return new
 
 
 class AlignedProfileHMMInit:
@@ -241,7 +268,9 @@ class AlignedProfileHMMInit:
 		vocab = VOCAB
 		# initialize model parameters data structures
 		empty_count = {emit: PSEUDOCOUNT for emit in vocab}
+		# empty_count[GAP] = 0
 		no_count = {emit: 0 for emit in vocab}
+		# no_count[GAP] = 0
 		full_width = int(np.mean([len(p) for p in profiles]))
 
 		# pi[i] = chances of starting with state i
@@ -331,16 +360,15 @@ class AlignedProfileHMMInit:
 			for source in a[node]:
 				norm = float(sum(a[node][source].values()))
 				for dest in a[node][source]:
-					a[node][source][dest] = a[node][source][dest] / norm
+					a[node][source][dest] = math.log(a[node][source][dest] / norm)
 
 			# normalize emission matrix
 			for state in b[node]:
 				norm = float(sum(b[node][state].values()))
 				for emit in b[node][state]:
-					b[node][state][emit] = b[node][state][emit] / norm
+					b[node][state][emit] = math.log(b[node][state][emit] / norm)
 
 		# hmm = ProfileHMM(width, vocab)
-
 		self.a = a
 		self.b = b
 		# self.hmm = ProfileHMM()
