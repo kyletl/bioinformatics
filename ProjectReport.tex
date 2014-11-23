@@ -81,31 +81,12 @@ Ideally we would have also been able to generate HMM logos based on our results.
 
 \section{Results}
 
-didn't work because of underflow - rounding floating point errors caused it to be reduced to 0
-
-if we had more time, use a log likelihood transform 
-
-\section{Discussion}
+While we weren't able to accomplish all of our goals, we were able to implement a training algorithm for profile-HMMs based on MSAs and also the forward-backward evaluation part of Baum-Welch. Attached is our output for the profile-HMM generated from the PF15187\_seed.txt MSA (in data/gen\_PF15187.hmm), which is too large to include in this report. PF15187.hmm is the pfam generated HMM for the same data set. It was difficult to interpret pfam's results without more information on the formatting of the data, and we feel that the differences in output are due to the varied structuring of the programs. We believe the maximization step failed because of an underflow error. The probabilities produced by the Forward-Backward algorithm approached zero due to the accumulation of rounding floating point errors. In the future, we would use a log-likelihood transformation to avoid this problem.
 
 
-% Example for formatting code:
-% 
-% \begin{minted}[mathescape, linenos, numbersep=3pt, gobble=0, framesep=20mm]{python}
-% 
-% if __name__ == '__main__':
-% 	print 'hello world'
-% 
-% \end{minted}
+\section{Division of Labor}
+As a whole, all members of the team were involved in the various aspects of this process. All three of us were involved in the research and planning of the project. Taylor worked mainly on the architecture of the profile-HMM, while Kyle focused on the training aspect of the algorithm. Cam took the lead on applications and Baum-Welch implementation. 
 
-
-
-% Example for inserting figures:
-% 
-% \begin{figure}[H]
-% \centering
-% \includegraphics[width=.5\textwidth]{filename goes here}
-% \caption{\bf caption goes here}
-% \end{figure}
 
 
 \end{document}
