@@ -1,12 +1,11 @@
-import sys
+#!/usr/bin/env python
 from sys import argv
 from FASTAReader import *
+from HMM import ProfileHMMHelper
 
 if __name__ == '__main__':
     fname = argv[1]
     seqs = FASTAFile(fname)
-    for seq in seqs:
-        print seq.name
-        for s in seq:
-            sys.stdout.write(s)
-        print '\n'
+    helper = ProfileHMMHelper(seqs)
+    print helper.a
+    print helper.b
