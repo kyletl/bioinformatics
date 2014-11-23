@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from sys import argv
 from FASTAReader import *
-from HMM import AlignedProfileHMM
+from HMM import AlignedProfileHMMInit
 from HMM import ProfileHMM
 
 # possible commands: init, train
@@ -12,8 +12,10 @@ if __name__ == '__main__':
 
 	if command == "init":
 		helper = AlignedProfileHMMInit(seqs)
-		print helper.a
-		print helper.b
+		# print helper.a
+		# print helper.b
+		for h in helper.a:
+			print h
 
 	elif command == "train":
 		helper = AlignedProfileHMMInit(seqs)
