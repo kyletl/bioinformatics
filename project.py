@@ -40,15 +40,8 @@ if __name__ == '__main__':
 
 	if command == "init":
 		helper = AlignedProfileHMMInit(seqs)
-		formatHelper(helper)
-		# # print helper.a
-		# for ha in helper.a:
-		# 	print ha
-		# # print helper.b
-		# for hb in helper.b:
-		# 	import pdb; pdb.set_trace()
-		# 	for hbb in hb:
-		# 		print hbb
+		for h in helper.a:
+			print h
 
 	elif command == "train":
 		helper = AlignedProfileHMMInit(seqs)
