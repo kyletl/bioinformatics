@@ -14,11 +14,14 @@ if __name__ == '__main__':
 		helper = AlignedProfileHMMInit(seqs)
 		# print helper.a
 		# print helper.b
+		for h in helper.b:
+			print h
+		print "\n"
+		print "\n"
 		for h in helper.a:
 			print h
 
-	elif command == "train":
+	elif command == "test":
 		helper = AlignedProfileHMMInit(seqs)
 		phmm = ProfileHMM(helper)
-		print phmm.a
-		print phmm.b
+		print phmm.probability(seqs[1])
