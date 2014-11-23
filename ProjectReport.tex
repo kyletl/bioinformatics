@@ -26,13 +26,13 @@ As the cost of genetic sequencing has dropped significantly over the past decade
 \item Decoding: Given a sequence of emissions and a model, what is the most likely sequence of states that emitted the given sequence?
 \item Training: Given a set of sequences and a model, find a model that best fits the emission sequences.
 \end{enumerate}
-In this report, we begin by attempting to train a model and then move on to solve the evaluation problem. We can then use this to create models based on families of sequences and cross-validate our model, as well as potentially use it to identify other sequences in the family.
+In this report, we begin by attempting to train a model and then move on to solve the evaluation problem. Our algorithm can be used to create, evaluate, and cross-validate models based on families of sequences. Using the evaluation operation, we can determine how strongly correlated a particular sequence is with our model, potentially identifying other sequences that are similar enough to be grouped together with the seed multiple sequence alignment.
 
 \footnotetext[1]{Hidden Markov Models and their Applications in Biological Sequence Analysis. Current Genomics. Sep 2009; 10(6): 402-415}
 
 \section{Hidden Markov Models}
 
-A Hidden Markov Model describes the probabilistic relationship between a set of hidden (i.e. unobservable) states and a set of known observations. If one knows the probability of going from one state to another at each time interval (the transition probability), and the probability that a given observation will be expressed by each state (the emission probability), then given a sequence of observations, one should be able to use this model to predict the most likely sequence of states corresponding to those observations. For example, say two people, Ann and Bob, live far apart. Bob tells Ann what he did each day for a week. Ann, who lives far from Bob, doesn't know what the weather is like for Bob each day. However, Ann does know the probability that Bob will do a certain activity based on the weather where he lives. She also knows the probability that a rainy day will be followed by a sunny day, and vice-versa. Using this information (where the weather reprsents the unobservable state, and the activity represents the observation for that day), Ann should be able to figure out the most likely weather pattern for that week.
+A Hidden Markov Model describes the probabilistic relationship between a set of hidden (i.e. unobservable) states and a set of known observations. If one knows the probability of going from one state to another at each time interval (the transition probability), and the probability that a given observation will be expressed by each state (the emission probability), then given a sequence of observations, one should be able to use this model to predict the most likely sequence of states corresponding to those observations. For example, say two people, Ann and Bob, live far apart. Bob tells Ann what he did each day for a week. Ann, who lives far from Bob, doesn't know what the weather is like for Bob each day. However, Ann does know the probability that Bob will do a certain activity based on the weather where he lives. She also knows the probability that a rainy day will be followed by a sunny day, and vice-versa. Using this information (where the weather represents the unobservable state, and the activity represents the observation for that day), Ann should be able to figure out the most likely weather pattern for that week.
 \begin{figure}[H]
 \centering
 \includegraphics[width=.5\textwidth]{materials/HMMGraph.png}
@@ -43,7 +43,7 @@ A Hidden Markov Model describes the probabilistic relationship between a set of 
 
 \section{Profile-Hidden Markov Models}
 
-Profile-Hidden Markov Models are an adaptation of HMMs used to model genetic sequences. A profile-HMM consists of a sequence of match, insert, and delete states which span the length of the consensus sequence. A match corresponds to the expression of either a nucleotide (in the case of DNA sequencing) or an amino acid (in the case of protein sequencing). Insert and delete states correspond to the expression of a gap. 
+Profile-Hidden Markov Models are an adaptation of HMMs used to model linear emission sequences. A profile-HMM consists of a sequence of match, insert, and delete states which span the length of the consensus sequence. A match corresponds to the expression of either a nucleotide (in the case of DNA sequencing) or an amino acid (in the case of protein sequencing). Insert and delete states correspond to the expression of a gap. 
 \begin{figure}[H]
 \centering
 \includegraphics[width=.8\textwidth]{materials/profile-HMM.png}
@@ -53,12 +53,19 @@ Each position in the sequence is represented by one match state, one insert stat
 
 \section{Methods}
 
+For this project, we implemented a special type of Hidden Markov Model known as a ``Profile-HMM.'' The initial parameters of the model are computed based on a multiple sequence alignment (MSA) input.
 
-\subsection{profile-HMM implementation}
-The profile-HMM is first initialized with a start and end node (which do not correspond to the sequence itself), as well as transition probabilities using a pseudocount of 1 for each weight (scaled for insertions and deletions to 0.2). The actual profile itself is constructed in the ProfileHMM class
+\subsection{Profile-HMM Implementation}
+The profile-HMM is structured with a start and end node (which do not correspond to the sequence itself), as well as transition probabilities using a pseudocount for each weight and emission probabilities that also use a pseudocount for each emission. Pseudocounts are used in an attempt to prevent underflow and/or zero probabilities in order to allow the model to encompass all possible paths and sequences. The HMM profile is first initialized in the AlignedProfileHMMHelper class. Each node in the profile-HMM is either an Insert state, a Match state, or a Delete state, and there is a time-independent stochastic transition matrix which determines the probabilities of moving from one state into another.
 
-\subsection{Viterbi Scoring Algorithm}
+It should be noted carefully that the issue of ``time'' indexing and the indexing of nodes in the profile-HMM are not necessarily the same, and in fact the algorithms we use require them to be independent.
 
+\subsection{Profile-HMM Initialization}
+
+To initialize a profile-HMM, the consensus columns in the input multiple sequence alignment are first identified. Once they have been identified, the number of consensus columns is set to be equal to the width of the profile-HMM we are initializing. Each consensus column corresponds to a Match state; Insert and Delete states are used to bridge gaps in sequences or to eliminate extra emissions that are not reflected in the multiple sequence alignment. Once consensus columns have been identified, we can then identify each column as either an Insert state or a Delete state, depending on whether there are too many or too few emissions in a given part of the sequence. We count up the number of emissions in each state and the number of transitions from each state to each other state, and use these counts to produce probability matrices for the profile-HMM's transitions and emissions.
+
+\subsection{Profile-HMM Evaluation \& Training}
+The evaluation and training step of the algorithm we implemented use the forward and backward algorithms to evaluate the probability of a given profile-HMM creating the output for a particular sequence. The algorithm works by stepping forward through the sequence from the front, as well as backward through the sequence from the back, in order to come up with a final probability figure for the sequence and the profile-HMM.
 
 \section{Application}
 To test our profile-HMM, we used two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we trained two separate models (one for each family). We then compared our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for its own family.
@@ -68,12 +75,10 @@ In order to compare against more established methods, we built HMMs on the same 
 \footnotetext[3]{http://pfam.xfam.org/family/PF15066}
 \footnotetext[4]{http://pfam.xfam.org/family/PF15187}
 
-\section{Results}
+\section{Results \& Discussion}
 didn't work because of underflow - rounding floating point errors caused it to be reduced to 0
 
 if we had more time, use a log likelihood transform 
-
-\section{Discussion}
 
 
 % Example for formatting code:

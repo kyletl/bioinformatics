@@ -96,10 +96,8 @@ class ProfileHMM:
 
 	def probability(self, seq):
 		sequence = self.clean_sequence(seq)
-		# alpha = self.check_forward(sequence)
+		alpha = self.check_forward(sequence)
 		beta = self.check_backward(sequence)
-		# print alpha[len(sequence)][(self.length + 1, N)] 
-		# print beta[0][(0, B)]
 		return beta[0][(0, B)]
 
 	def train_once(self, sequence):
@@ -124,12 +122,13 @@ class ProfileHMM:
 		for t in range(1, len(sequence)+1):
 			for (d, dest_state) in all_states:
 				# get raw probability based on source states
-				prob = 0
+				prob = PSEUDOCOUNT
 				for (s, src_state) in self.source_states(d, dest_state):
-					prob += self.a[s][src_state][dest_state] * alpha[t-1][(s, src_state)]
+					prob += math.log(1 + math.exp(self.a[s][src_state][dest_state] + alpha[t-1][(s, src_state)]) / prob)
 				# scale probability by emission probability if needed
+				prob = math.log(prob)
 				if dest_state in EMITS:
-					prob *= self.b[d][dest_state][sequence[t-1]] # adjust for sequence 0-index
+					prob += self.b[d][dest_state][sequence[t-1]] # adjust for sequence 0-index
 
 				alpha[t][(d, dest_state)] = prob
 
@@ -150,18 +149,18 @@ class ProfileHMM:
 		# for decreasing time values, find probability of state given suffix
 		for t in range(len(sequence)-1, -1, -1):
 			for (s, src_state) in all_states:
-				prob = 0
+				prob = PSEUDOCOUNT
 				# take a sigma over all destination states from this one
 				for (d, dest_state) in self.dest_states(s, src_state):
 					sigma = self.a[s][src_state][dest_state]
 					# scale by emission probability for non-silent states
 					if dest_state in EMITS:
-						sigma *= beta[t+1][(d, dest_state)] * self.b[d][dest_state][sequence[t]]
+						sigma += beta[t+1][(d, dest_state)] + self.b[d][dest_state][sequence[t]]
 					else:
-						sigma *= beta[t][(d, dest_state)]
-					prob += sigma
+						sigma += beta[t][(d, dest_state)]
+					prob += math.exp(sigma)
 
-				beta[t][(s, src_state)] = prob
+				beta[t][(s, src_state)] = math.log(prob)
 
 		return beta
 
@@ -268,9 +267,7 @@ class AlignedProfileHMMInit:
 		vocab = VOCAB
 		# initialize model parameters data structures
 		empty_count = {emit: PSEUDOCOUNT for emit in vocab}
-		# empty_count[GAP] = 0
 		no_count = {emit: 0 for emit in vocab}
-		# no_count[GAP] = 0
 		full_width = int(np.mean([len(p) for p in profiles]))
 
 		# pi[i] = chances of starting with state i
@@ -360,13 +357,13 @@ class AlignedProfileHMMInit:
 			for source in a[node]:
 				norm = float(sum(a[node][source].values()))
 				for dest in a[node][source]:
-					a[node][source][dest] = math.log(a[node][source][dest] / norm)
+					a[node][source][dest] = math.log(a[node][source][dest]) - math.log(norm)
 
 			# normalize emission matrix
 			for state in b[node]:
 				norm = float(sum(b[node][state].values()))
 				for emit in b[node][state]:
-					b[node][state][emit] = math.log(b[node][state][emit] / norm)
+					b[node][state][emit] = math.log(b[node][state][emit]) - math.log(norm)
 
 		# hmm = ProfileHMM(width, vocab)
 		self.a = a
