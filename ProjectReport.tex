@@ -60,15 +60,27 @@ The profile-HMM is first initialized with a start and end node (which do not cor
 \subsection{Viterbi Scoring Algorithm}
 
 
-\section{Application}
-To test our profile-HMM, we used two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we trained two separate models (one for each family). We then compared our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for its own family.
 
-In order to compare against more established methods, we built HMMs on the same seed multiple sequence alignments using HMMer, then ran a search on pfam's database using those HMMs. 
+\section{Application}
+We had planned to test our profile-HMM using two different gene families taken from pfam, Cancer-associated gene protein 1 (CAGE1)\footnotemark[3] and Oesophageal cancer-related gene 4 (Augurin).\footnotemark[4] Using the smaller seed alignments for each family, which pfam used to assemble the family as a whole, we planned to train two separate models (one for each family). We would then compare our models to both their own sets and the opposite sets to confirm that our model was getting higher probability scores for its own family.
+
+In order to compare against more established methods, we planned to build HMMs on the same seed multiple sequence alignments using HMMer, then run a search on pfam's database using those HMMs and compare to our own results.
+
+Ideally we would have also been able to generate HMM logos based on our results. However, we ran into a lot of problems due to the formatting of HMM files, which has very sparse documentation. Because of this, we had trouble integrating and comparing our results with established methods.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\textwidth]{materials/HMMerLogo.png}
+\caption{HMMer logo generated from the PF15066 (CAGE1) Seed MSA}
+\end{figure}
+
+
 
 \footnotetext[3]{http://pfam.xfam.org/family/PF15066}
 \footnotetext[4]{http://pfam.xfam.org/family/PF15187}
 
 \section{Results}
+
 didn't work because of underflow - rounding floating point errors caused it to be reduced to 0
 
 if we had more time, use a log likelihood transform 
