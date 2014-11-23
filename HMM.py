@@ -51,18 +51,18 @@ TRANSITIONS = {
 	}
 }
 END = {
-	D: {
-		N: PSEUDOCOUNT,
-		I: PSEUDOCOUNT,
-	},
-	I: {
-		I: PSEUDOCOUNT,
-		N: PSEUDOCOUNT
-	},
-	M: {
-		I: PSEUDOCOUNT,
-		N: PSEUDOCOUNT
-	},
+    D: {
+        N: PSEUDOCOUNT,
+        I: PSEUDOCOUNT,
+    },
+    I: {
+        I: PSEUDOCOUNT,
+        N: PSEUDOCOUNT
+    },
+    M: {
+        I: PSEUDOCOUNT,
+        N: PSEUDOCOUNT
+    },
 }
 VOCAB = set("ARNDCQEGHILKMFPSTWYV")
 STATES = set([B, I, D, M, N])
@@ -73,10 +73,10 @@ EMITS = set([I, M])
 """A class to define a profile-Hidden Markov Model.
 
 Input:
-	states - set of possible states
-	transitions - sources: their possible destination set
-	vocab - set of all possible emissions
-	start (optional) - start state, must be in states
+    states - set of possible states
+    transitions - sources: their possible destination set
+    vocab - set of all possible emissions
+    start (optional) - start state, must be in states
 """
 
 class ProfileHMM:
@@ -172,6 +172,7 @@ class ProfileHMM:
 
 			elif pos > self.length + 1:
 				return sources
+
 
 			elif pos < 0:
 				return sources

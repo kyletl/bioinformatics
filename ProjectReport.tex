@@ -20,9 +20,7 @@
 
 \section{Introduction}
 
-As the cost of genetic sequencing has dropped significantly over the past decade, there has become an abundance of unprocessed genetic data. Many different computational methods have been developed or adapted to look for patterns in sets of genetic sequences, including Hidden Markov Models, which are particularly useful for processing signals from noise. One of the first applications of HMMs was in speech recognition in the 70s, and since then, many uses have been found in biological sequence analysis, including gene prediction, sequence alignment, structural alignment, and more.\footnotemark[1] 
-
-When we talk about problems concerning HMMs, we usually mean one of three things:
+As the cost of genetic sequencing has dropped significantly over the past decade, there has become an abundance of unprocessed genetic data. Many different computational methods have been developed or adapted to look for patterns in sets of genetic sequences, including Hidden Markov Models, which are particularly useful for processing signals from noise. One of the first applications of HMMs was in speech recognition in the 70s, and since then, many uses have been found in biological sequence analysis, including gene prediction, sequence alignment, structural alignment, and more.\footnotemark[1] When we talk about problems concerning HMMs, we usually mean one of three things:
 \begin{enumerate}
 \item Evaluation: What is the probability that a particular sequence of emissions is the output of a HMM model?
 \item Decoding: Given a sequence of emissions and a model, what is the most likely sequence of states that emitted the given sequence?
@@ -51,8 +49,10 @@ Profile-Hidden Markov Models are an adaptation of HMMs used to model genetic seq
 \includegraphics[width=.8\textwidth]{materials/profile-HMM.png}
 \caption{profile-HMM\footnotemark[1]}
 \end{figure}
+Each position in the sequence is represented by one match state, one insert state, and one delete state. Aside from the insert states, a state may only transition to another state that is in the next sequential step in the sequence. Thus each position in the sequence (1 \ldots k) can be represented as M_{1} I_{1} D_{1}, M_{2} I_{2} D_{2} \ldots M_{k} I_{k} D_{k}. The probabilities of each state transitioning to each other valid state describes the set of transition probabilities for the model. Each match state contains a probability distribution for the alphabet of amino acids, describing the set of emission probabilities for that state.
 
 \section{Methods}
+
 
 \subsection{profile-HMM implementation}
 
