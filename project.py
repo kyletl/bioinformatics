@@ -24,4 +24,4 @@ if __name__ == '__main__':
 	elif command == "test":
 		helper = AlignedProfileHMMInit(seqs)
 		phmm = ProfileHMM(helper)
-		print phmm.probability(seqs[1])
+		print phmm.probability(seqs[0])
